@@ -20,6 +20,7 @@ Get Started
 
 1. Clone this repo
 2. `cd irontrello`
+2. `bundle install`
 3. `ruby cli.rb api-start`
 4. Copy the KEY and run:
 5. `ruby cli.rb api-save THEKEY`
