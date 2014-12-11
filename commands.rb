@@ -29,11 +29,27 @@ module IronTrello
       end
     end
 
-    class Api < Command
+    class DbSetup < Command
       def initialize
       end
-      def run(token)
+      def run
         @db = IronTrello::DB.conn
+        unless @db.read(:auth) && @db.read(:api)
+          Object.send(:remove_const,'Auth') if Object.const_defined?(:Auth)
+          Object.send(:remove_const,'Api') if Object.const_defined?(:Api)
+          Object.send(:remove_const,'Board') if Object.const_defined?(:Board)
+          IronTrello::DB.setup
+          @db = IronTrello::DB.conn
+        end
+        @db
+      end
+    end
+
+    class Api < Command
+      def initialize
+        @db = IronTrello::Commands::DbSetup.new.run
+      end
+      def run(token)
         # save auth
         @db.relations.api.insert(key: token)
       end
@@ -41,22 +57,13 @@ module IronTrello
 
     class Setup < Command
       def initialize
+        @db = IronTrello::Commands::DbSetup.new.run
       end
       def run(member_token)
-        IronTrello::DB.setup
-        @db = IronTrello::DB.conn
         # save auth
         @db.relations.auth.insert(member_token: member_token)
       end
     end
-
-    #class Auth < Command
-    #  def run
-    #    @db.read(:auth).to_a.first.token
-    #  end
-    #end
-
-
 
     class ListNewBoards < Command
       def run

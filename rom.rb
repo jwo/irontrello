@@ -5,6 +5,8 @@ module IronTrello
 
     def self.setup
       File.delete("./irontrello.db")
+
+
       setup = ROM.setup(sqlite: "sqlite://irontrello.db")
       setup.sqlite.connection.create_table :auth do
         primary_key :id
